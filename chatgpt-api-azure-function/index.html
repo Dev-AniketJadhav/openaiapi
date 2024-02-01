@@ -1,0 +1,68 @@
+ <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GPT4 Chat API Model</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <main>
+      <h1>ChatGPT4 API</h1>  
+      <form id="message-form">
+        <input type="text" name="message" id="message">
+        <button type="submit">Send</button>
+      </form>
+      <div id="chat-log">
+        
+      </div>
+    </main>
+    <script>
+      let messages = [];
+       const chatLog = document.getElementById('chat-log');
+      const messageForm = document.getElementById('message-form');
+      const messageInput = document.getElementById('message');
+      console.log(chatLog);
+      messageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const messageText = messageInput.value;
+        const newMessage = { "role": "user", "content": messageText };
+        messages.push(newMessage);
+        messageInput.value = '';
+
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.classList.add('message--sent');
+        messageElement.innerHTML = `<div class="message__text">${messageText}</div>`;
+        chatLog.appendChild(messageElement);
+        chatLog.scrollTop = chatLog.scrollHeight;
+
+        try {
+          const response = await fetch('http://localhost:3000/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messages
+            })
+          });
+
+          const data = await response.json();
+
+          const assistantMessageElement = document.createElement("div");
+          assistantMessageElement.classList.add('message');
+          assistantMessageElement.classList.add('message--received');
+          assistantMessageElement.innerHTML = `<div class="message__text">${data.completion.message}</div>`;
+          chatLog.appendChild(assistantMessageElement);
+          chatLog.scrollTop = chatLog.scrollHeight;
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      });
+    </script>
+  </body>
+</html> 
+
